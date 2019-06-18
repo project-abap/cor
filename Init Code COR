@@ -1,112 +1,94 @@
-*&---------------------------------------------------------------------*
-*& Report  YCOR189A
-*&
-*&---------------------------------------------------------------------*
-*&
-*&
-*&---------------------------------------------------------------------*
-REPORT YCOR189A NO STANDARD PAGE HEADING.
+TYPE-POOLS: vrm.
+
+" commons
+TYPES:
+  FLOAT TYPE P DECIMALS 2.
+
+" dropdowns
+
+DATA:
+  vrm_id TYPE vrm_id,
+  vrm_list TYPE vrm_values,
+  vrm_item LIKE LINE OF vrm_list.
+
+AT SELECTION-SCREEN OUTPUT.
+
+  " classification
+  CLEAR vrm_list.
+  vrm_id = 'u_cl'.
+  vrm_item-key = vrm_item-text = 'ENROLLEE'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'LCONTINUING'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'TRANSFEREE'. APPEND vrm_item TO vrm_list.
+
+  CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
+
+  " programs
+  CLEAR vrm_list.
+  vrm_id = 'u_prog'.
+  vrm_item-key = vrm_item-text = 'BSITWMA'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'BSITAGD'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'BSITDA'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'BSITSMBA'. APPEND vrm_item TO vrm_list.
+
+  CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
+
+  " programs
+  CLEAR vrm_list.
+  vrm_id = 'u_sem'.
+  vrm_item-key = vrm_item-text = '1'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '2'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '3'. APPEND vrm_item TO vrm_list.
+
+  CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
+
+  " then levels
+  vrm_id = 'u_lvl'.
+  vrm_item-key = vrm_item-text = '4'. APPEND vrm_item TO vrm_list.
+
+  CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
+  
+  " programs
+  CLEAR vrm_list.
+  vrm_id = 'u_scho'.
+  vrm_item-key = vrm_item-text = 'Regular Student'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'ACAD50'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'ACAD75'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'PSTOP50'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'PSSAL75'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'PSVAL100'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'ELITE'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'MEGAWORLD'. APPEND vrm_item TO vrm_list.
+
+  CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
+
+
+
+
+"! actual start of the your program bruh
+
+START-OF-SELECTION.
 
 "Input Fields"
-PARAMETERS: FName(50) TYPE c, "First Name"
-            LName(50) TYPE c, "Last Name"
-            MName(50) TYPE c, "Middle Name"
-            SNum(11) TYPE c , "Student Number"
-            Prog(10) TYPE c, "Program"
-            YrLvl TYPE p LENGTH 1 DECIMALS 0, "Year Level"
-            Addr(50) TYPE c, "Address"
-            PNum(11) TYPE c, "Phone Number"
-            SemNum(3) TYPE c, "Trimester Number"
-            Zcode(4) TYPE c, "ZipCode"
-            TuiF TYPE p LENGTH 5 DECIMALS 2. "Tuition Fee"
+PARAMETERS:
+  u_fname(50) TYPE c,
+  u_mname(50) TYPE c,
+  u_lname(50) TYPE c,
+  u_sid(11) TYPE c,
 
-"Scholarship
+  u_cl(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
+  u_prog(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
+  u_lvl(4) AS LISTBOX VISIBLE LENGTH 4 OBLIGATORY,
+  u_scho(18) AS LISTBOX VISIBLE LENGTH 18 OBLIGATORY,
 
-PARAMETERS: Reg   RADIOBUTTON GROUP rb DEFAULT 'X', "Regular Student
-            Ac50  RADIOBUTTON GROUP rb, "acad50
-            Ac75  RADIOBUTTON GROUP rb,"acad75
-            Pssal RADIOBUTTON GROUP rb, "PSSAL 75%
-            Psval RADIOBUTTON GROUP rb, "PSVAL
-            Elite RADIOBUTTON GROUP rb. "elite
+  u_addr(50) TYPE c, "Address"
+  u_phnum(11) TYPE c, "Phone Number"
+  u_sem(3) TYPE c, "Trimester Number"
+  u_zcode(4) TYPE c, "ZipCode"
+  u_tfee TYPE FLOAT. "Tuition Fee"
 
-"Data
 
-DATA: MiscFee TYPE p LENGTH 6 DECIMALS 2 VALUE '7387.75',
-      IdFee TYPE p LENGTH 6 DECIMALS 2 VALUE '65.15',
-      ITEFee TYPE p LENGTH 6 DECIMALS 2 VALUE '3247.00',
-      SAPFee TYPE p LENGTH 6 DECIMALS 2 VALUE '5469.50',
-      AddOn TYPE p LENGTH 6 DECIMALS 2 VALUE '250.00',
-      "Statics
-      Total TYPE  p LENGTH 6 DECIMALS 2,
-      Dpayment TYPE  p LENGTH 6 DECIMALS 2,
-      Mpayment TYPE  p LENGTH 6 DECIMALS 2,
-      Fpayment TYPE  p LENGTH 6 DECIMALS 2,
-      "Percent
-      Dpercent TYPE p LENGTH 6 DECIMALS 2 VALUE '.40',
-      Mpercent TYPE p LENGTH 6 DECIMALS 2 VALUE '.30',
-      Fpercent TYPE p LENGTH 6 DECIMALS 2 VALUE '.30',
-      S75Mult TYPE p LENGTH 6 DECIMALS 2 VALUE '.75',
-      "Text Variables"
-      ValText(99) TYPE c,
-      EltText(99) TYPE c.
 
-"Compress Names"
-CONCATENATE Lname ',' Fname Mname into DATA(full_name) SEPARATED BY space.
 
-"Scholarship Selection"
-IF Ac50 = 'X'.
-  Tuif = Tuif / 2.
-
-ELSEIF Ac75 = 'X' OR Pssal = 'X'.
-  Tuif = Tuif - ( Tuif * S75Mult ).
-
-ELSEIF Psval = 'X' OR Elite = 'X'.
-  Dpayment = 0.
-  Mpayment = 0.
-  Fpayment = 0.
-ENDIF.
-
-"Compute Breakdown"
-Total = TuiF + MiscFee + IdFee + ITEFee + SAPFee.
-
-Dpayment = Total * Dpercent.
-Mpayment = Total * Mpercent.
-Fpayment = Total * Fpercent.
-
-WRITE: 'Certificate of Registration',
-       /'Student Number: ',SNum,55'Program: ',Prog,
-       /'Name: ', full_name ,55'Year Level: ',YrLvl,' ', SemNum,' Trimester, Academic Year 20182019',129'00047',
-       /'Phone: 09178273944',' Zip Code: ',Zcode,55'Address: ', Addr ,
-       /'Classification: LCONTINUING'.
-SKIP.
-WRITE: /'Course',     15'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor Initials',
-       /'Rizal',      17'W41',      29'3',      37'M/TH', 47'11:00-12:50/11:00-12:50',  75'F503/F503',  95'____________________', 125'Tuition Fee(18)',                                 157 TuiF RIGHT-JUSTIFIED,
-       /'ITEELEC1',   17'W41',      29'3',      37'M/TH', 47'15:00-16:50/15:00-16:50',  75'F707/F707',  95'____________________', 125'Miscellaneous Fee',                               155 MiscFee RIGHT-JUSTIFIED,
-       /'ITEFRELEC2', 17'W41',      29'3',      37'M/TH', 47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'ID Validation Fee',                               155 IdFee RIGHT-JUSTIFIED,
-       /'ITEELEC2',   17'W41',      29'3',      37'T/F',  47'13:00-14:50/13:00-14:50',  75'T409/T409',  95'____________________', 125'ITE Computer Laboratory Fee',/125'(ITWELEC4A)',   155 ITEFee RIGHT-JUSTIFIED,
-       /'ECONOMICS',  17'W41',      29'3',      37'T/F',  47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'SAP Fee(ITEELEC2)',                               155 SAPFee RIGHT-JUSTIFIED,
-       /'ITWELEC4A',  17'W41',      29'3',      37'S/S',  47'17:00-18:50/19:00-20:50',  74'F607/F1202', 95'____________________', 125'TOTAL ASSESSMENT',                                155 Total RIGHT-JUSTIFIED,
-       /'',10'TOTAL UNITS',         29'18'.
-
-      IF Psval = 'X'.
-        WRITE: 125'President Scholar',/125'Valedictorian (100% of','( ',Total,')',/125'Tuition and Miscellaneous',/125'Fee)'.
-        Dpayment = 0.
-        Fpayment = 0.
-        Mpayment = 0.
-      ELSEIF  Elite = 'X'.
-        WRITE: 125'Elite Scholar (100% of', /125'Tuition and Miscellaneous', 155'(',Total,')', /125'Fee)'.
-        Dpayment = 0.
-        Fpayment = 0.
-        Mpayment = 0.
-      ENDIF.
-
-WRITE:                                                                                                                           /125 'Down Payment (Upon',/125 'Enrollment) 40%',      155 Dpayment,
-       /'This is your official Certificate of Registration when validated and signed in in by the College',                      /125 'Midterm (May 16 - May 18',/125 '2019) 30%',      155 Mpayment,
-       /'Registrar or his/her representative. Changes herein should have prior approval from this office.',                      /125 'Final (Jul 01 - Jul 06 2019',/125 '30%',         155 Fpayment,
-       /'COR replacement will cost you P280.00',                                                                                 /125 'Add on: Installment Fee',                        155 AddOn.
-
-SKIP.
-SKIP.
-WRITE:                /17 full_name,
-                      /17 SY-ULINE(20),                                                      75'College Registrar',
-                      /18'Student Signature'.
+START-OF-SELECTION.
+WRITE: / 'Classif:', u_cl.
+WRITE: / 'Program:', u_prog.
