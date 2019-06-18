@@ -46,7 +46,7 @@ AT SELECTION-SCREEN OUTPUT.
   vrm_item-key = vrm_item-text = '4'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
-  
+
   " programs
   CLEAR vrm_list.
   vrm_id = 'u_scho'.
@@ -62,23 +62,44 @@ AT SELECTION-SCREEN OUTPUT.
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
 
 
-
-
+"
 "! actual start of the your program bruh
+"
+
 
 START-OF-SELECTION.
 
+" WITH FRAME TITLE x
 "Input Fields"
+" SELECTION-SCREEN BEGIN OF BLOCK b1.
+
+" SELECTION-SCREEN BEGIN OF LINE.
+
+
+SELECTION-SCREEN BEGIN OF BLOCK _user WITH FRAME TITLE _user.
+  SELECTION-SCREEN BEGIN OF BLOCK _u_name WITH FRAME TITLE _u_name.
+
+  PARAMETERS:
+    u_fname(50) TYPE c,
+    u_mname(50) TYPE c,
+    u_lname(50) TYPE c.
+
+  SELECTION-SCREEN END OF BLOCK _u_name.
+SELECTION-SCREEN END OF BLOCK _user.
+
+INITIALIZATION. 
+  _user = 'User information'.
+  _u_name = 'User name'.
+
+SELECTION-SCREEN SKIP 1.
+
 PARAMETERS:
-  u_fname(50) TYPE c,
-  u_mname(50) TYPE c,
-  u_lname(50) TYPE c,
   u_sid(11) TYPE c,
 
-  u_cl(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
-  u_prog(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
-  u_lvl(4) AS LISTBOX VISIBLE LENGTH 4 OBLIGATORY,
-  u_scho(18) AS LISTBOX VISIBLE LENGTH 18 OBLIGATORY,
+  u_cl(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
+  u_prog(12) AS LISTBOX VISIBLE LENGTH 12, "OBLIGATORY,
+  u_lvl(4) AS LISTBOX VISIBLE LENGTH 4, "OBLIGATORY,
+  u_scho(18) AS LISTBOX VISIBLE LENGTH 18, " OBLIGATORY,
 
   u_addr(50) TYPE c, "Address"
   u_phnum(11) TYPE c, "Phone Number"
@@ -87,8 +108,11 @@ PARAMETERS:
   u_tfee TYPE FLOAT. "Tuition Fee"
 
 
+" SELECTION-SCREEN END OF LINE.
+" SELECTION-SCREEN END OF BLOCK b1.
 
 
-START-OF-SELECTION.
+
+" START-OF-SELECTION.
 WRITE: / 'Classif:', u_cl.
 WRITE: / 'Program:', u_prog.
