@@ -87,6 +87,19 @@ WRITE: /'Course',     15'Section',  27'Units',  37'Days', 56'Time',             
        /'ECONOMICS',  17'W41',      29'3',      37'T/F',  47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'SAP Fee(ITEELEC2)',                               155 SAPFee RIGHT-JUSTIFIED,
        /'ITWELEC4A',  17'W41',      29'3',      37'S/S',  47'17:00-18:50/19:00-20:50',  74'F607/F1202', 95'____________________', 125'TOTAL ASSESSMENT',                                155 Total RIGHT-JUSTIFIED,
        /'',10'TOTAL UNITS',         29'18'.
+
+      IF Psval = 'X'.
+        WRITE: 125'President Scholar',/125'Valedictorian (100% of','( ',Total,')',/125'Tuition and Miscellaneous',/125'Fee)'.
+        Dpayment = 0.
+        Fpayment = 0.
+        Mpayment = 0.
+      ELSEIF  Elite = 'X'.
+        WRITE: 125'Elite Scholar (100% of', /125'Tuition and Miscellaneous', 155'(',Total,')', /125'Fee)'.
+        Dpayment = 0.
+        Fpayment = 0.
+        Mpayment = 0.
+      ENDIF.
+
 WRITE:                                                                                                                           /125 'Down Payment (Upon',/125 'Enrollment) 40%',      155 Dpayment,
        /'This is your official Certificate of Registration when validated and signed in in by the College',                      /125 'Midterm (May 16 - May 18',/125 '2019) 30%',      155 Mpayment,
        /'Registrar or his/her representative. Changes herein should have prior approval from this office.',                      /125 'Final (Jul 01 - Jul 06 2019',/125 '30%',         155 Fpayment,
@@ -95,5 +108,5 @@ WRITE:                                                                          
 SKIP.
 SKIP.
 WRITE:                /17 full_name,
-                      /17 SY-ULINE(17),                                                      75'College Registrar',
-                      /17'Student Signature'.
+                      /17 SY-ULINE(20),                                                      75'College Registrar',
+                      /18'Student Signature'.
