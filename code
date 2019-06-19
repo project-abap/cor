@@ -90,7 +90,7 @@ SELECTION-SCREEN BEGIN OF BLOCK S_USER WITH FRAME TITLE S_USER.
   SELECTION-SCREEN SKIP 1.
 
   PARAMETERS:
-    u_addr(128) TYPE c, "Address"
+    u_addr(52) TYPE c, "Address"
     u_phnum(11) TYPE c, "Phone Number"
     u_zcode(4) TYPE c. "ZipCode"
 
@@ -221,6 +221,7 @@ CONCATENATE b_yr date(4) INTO DATA(ac_yr).
 " condense
 "
 
+CONDENSE u_addr.
 CONDENSE u_sem.
 CONDENSE u_cl.
 CONDENSE u_prog.
