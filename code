@@ -35,14 +35,18 @@ AT SELECTION-SCREEN OUTPUT.
   " programs
   CLEAR vrm_list.
   vrm_id = 'u_sem'.
-  vrm_item-key = vrm_item-text = '1'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = '2'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = '3'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '1st'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '2nd'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '3rd'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
 
-  " then levels
+  " levels
+  CLEAR vrm_list.
   vrm_id = 'u_lvl'.
+  vrm_item-key = vrm_item-text = '1'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '2'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = '3'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '4'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
@@ -69,47 +73,49 @@ AT SELECTION-SCREEN OUTPUT.
 
 START-OF-SELECTION.
 
-" WITH FRAME TITLE x
-"Input Fields"
-" SELECTION-SCREEN BEGIN OF BLOCK b1.
+SELECTION-SCREEN BEGIN OF BLOCK S_USER WITH FRAME TITLE S_USER.
 
-" SELECTION-SCREEN BEGIN OF LINE.
+  PARAMETERS:
+    u_sid(11) TYPE c.
 
-
-SELECTION-SCREEN BEGIN OF BLOCK _user WITH FRAME TITLE _user.
-  SELECTION-SCREEN BEGIN OF BLOCK _u_name WITH FRAME TITLE _u_name.
+  SELECTION-SCREEN SKIP 1.
 
   PARAMETERS:
     u_fname(50) TYPE c,
     u_mname(50) TYPE c,
     u_lname(50) TYPE c.
 
-  SELECTION-SCREEN END OF BLOCK _u_name.
-SELECTION-SCREEN END OF BLOCK _user.
+  SELECTION-SCREEN SKIP 1.
 
-INITIALIZATION. 
-  _user = 'User information'.
-  _u_name = 'User name'.
+  PARAMETERS:
+    u_addr(128) TYPE c, "Address"
+    u_phnum(11) TYPE c, "Phone Number"
+    u_zcode(4) TYPE c. "ZipCode"
 
-SELECTION-SCREEN SKIP 1.
-
-PARAMETERS:
-  u_sid(11) TYPE c,
-
-  u_cl(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
-  u_prog(12) AS LISTBOX VISIBLE LENGTH 12, "OBLIGATORY,
-  u_lvl(4) AS LISTBOX VISIBLE LENGTH 4, "OBLIGATORY,
-  u_scho(18) AS LISTBOX VISIBLE LENGTH 18, " OBLIGATORY,
-
-  u_addr(50) TYPE c, "Address"
-  u_phnum(11) TYPE c, "Phone Number"
-  u_sem(3) TYPE c, "Trimester Number"
-  u_zcode(4) TYPE c, "ZipCode"
-  u_tfee TYPE FLOAT. "Tuition Fee"
+SELECTION-SCREEN END OF BLOCK S_USER.
 
 
-" SELECTION-SCREEN END OF LINE.
-" SELECTION-SCREEN END OF BLOCK b1.
+" class information
+
+SELECTION-SCREEN BEGIN OF BLOCK S_CLASS WITH FRAME TITLE S_CLASS.
+
+  PARAMETERS:
+    u_sem(3) AS LISTBOX VISIBLE LENGTH 6 OBLIGATORY, "Trimester Number"
+    u_cl(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
+    u_prog(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
+    u_lvl(1) AS LISTBOX VISIBLE LENGTH 4 OBLIGATORY,
+    u_scho(15) AS LISTBOX VISIBLE LENGTH 18 OBLIGATORY,
+
+    u_tfee TYPE FLOAT. "Tuition Fee"
+
+SELECTION-SCREEN END OF BLOCK S_CLASS.
+
+
+" block titles
+INITIALIZATION.
+  S_USER = 'User Information'.
+  S_CLASS = 'Class Information'.
+
 
 
 
