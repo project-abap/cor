@@ -1,3 +1,4 @@
+
 TYPE-POOLS: vrm.
 
 " commons
@@ -103,10 +104,10 @@ SELECTION-SCREEN BEGIN OF BLOCK S_CLASS WITH FRAME TITLE S_CLASS.
 
   PARAMETERS:
     u_sem(3) AS LISTBOX VISIBLE LENGTH 6, " OBLIGATORY, "Trimester Number"
-    u_cl(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
+    u_cl(12) AS LISTBOX VISIBLE LENGTH 14, " OBLIGATORY,
     u_prog(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
     u_lvl(1) AS LISTBOX VISIBLE LENGTH 4, " OBLIGATORY,
-    u_scho(15) AS LISTBOX VISIBLE LENGTH 18. " OBLIGATORY. 
+    u_scho(15) AS LISTBOX VISIBLE LENGTH 15. " OBLIGATORY.
 
 SELECTION-SCREEN END OF BLOCK S_CLASS.
 
@@ -116,7 +117,7 @@ SELECTION-SCREEN END OF BLOCK S_CLASS.
 SELECTION-SCREEN BEGIN OF BLOCK S_FEES WITH FRAME TITLE S_FEES.
 
   PARAMETERS:
-    f_tui TYPE FLOAT, "Tuition Fee"
+    f_tui TYPE FLOAT,
     f_misc TYPE FLOAT,
     f_id TYPE FLOAT,
     f_ite TYPE FLOAT,
@@ -144,10 +145,9 @@ END-OF-SELECTION.
 "
 
 DATA:
-  
-
   " statics
   f_total TYPE FLOAT,
+  f_dtotal TYPE FLOAT,
   p_down TYPE FLOAT,
   p_midterm TYPE FLOAT,
   p_final TYPE FLOAT,
@@ -156,68 +156,108 @@ DATA:
   pp_down TYPE FLOAT VALUE '0.40',
   pp_midterm TYPE FLOAT VALUE '0.30',
   pp_final TYPE FLOAT VALUE '0.30',
-  S75Mult TYPE FLOAT VALUE '0.75',
+  
+  " discount
+  p_disc TYPE FLOAT VALUE '0',
 
   " texts
-  ValText(99) TYPE c,
-  EltText(99) TYPE c.
+  txt_scho(24) TYPE c.
 
 "
 " computations and other stuff
 "
+
+" set discounts
+
+IF u_scho = '2'.
+  p_disc = '0.5'.
+  txt_scho = 'Academic Scholar (50%)'.
+ELSEIF u_scho = '3'.
+  p_disc = '0.75'.
+  txt_scho = 'Academic Scholar (75%)'.
+ELSEIF u_scho = '4'.
+  p_disc = '0.5'.
+  txt_scho = 'President Scholar (50%)'.
+ELSEIF u_scho = '5'.
+  p_disc = '0.75'.
+  txt_scho = 'President Scholar (75%)'.
+ELSEIF u_scho = '6'.
+  p_disc = '1'.
+  txt_scho = 'President Scholar (100%)'.
+ELSEIF u_scho = '7'.
+  p_disc = '1'.
+  txt_scho = 'Elite Scholar (100%)'.
+ELSEIF u_scho = '8'.
+  p_disc = '1'.
+  txt_scho = 'Megaworld Scholar (100%)'.
+ENDIF.
+
+f_total = f_tui + f_misc + f_id + f_ite + f_sap.
+
+p_down = f_total * pp_down.
+p_midterm = f_total * pp_midterm.
+p_final = f_total * pp_final.
+
+" compute disc total
+f_dtotal = f_total * p_disc.
 
 " get full names
 CONCATENATE u_lname ',' into DATA(u_lname_f).
 CONCATENATE u_lname_f u_fname u_mname into DATA(u_fullname_1) SEPARATED BY SPACE.
 CONCATENATE u_fname u_mname u_lname INTO DATA(u_fullname_2) SEPARATED BY SPACE.
 
-DATA: date TYPE SY-DATUM.
+" dates
+DATA:
+  date TYPE SY-DATUM,
+  b_yr TYPE STRING.
+
 date = SY-DATUM.
+b_yr = date(4) - 1.
 
+CONDENSE b_yr.
 
-
+CONCATENATE b_yr date(4) INTO DATA(ac_yr).
 
 "
 " display
 "
 
-
 WRITE:
  'Certificate of Registration',
   / 'Student Number: ', u_sid, 55 'Program:', u_prog,
-  / 'Name:', u_fullname_1, 55 'Year Level:', u_lvl, ' ', u_sem,' Trimester, Academic Year', date(4), date(4), 129 '00047',
-  / 'Phone: 09178273944',' Zip Code: ', u_zcode, 55 'Address: ', u_addr,
+  / 'Name:', u_fullname_1, 55 'Year Level:', u_lvl, ' ', u_sem,' Trimester, Academic Year', ac_yr, 129 '00047',
+  / 'Phone:', u_phnum, ' Zip Code: ', u_zcode, 55 'Address: ', u_addr,
   / 'Classification: LCONTINUING'.
 SKIP.
-WRITE: /'Course',     15'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor Initials',
-       /'Rizal',      17'W41',      29'3',      37'M/TH', 47'11:00-12:50/11:00-12:50',  75'F503/F503',  95'____________________', 125'Tuition Fee(18)',                                 157 f_tui RIGHT-JUSTIFIED,
-       /'ITEELEC1',   17'W41',      29'3',      37'M/TH', 47'15:00-16:50/15:00-16:50',  75'F707/F707',  95'____________________', 125'Miscellaneous Fee',                               155 f_misc RIGHT-JUSTIFIED,
-       /'ITEFRELEC2', 17'W41',      29'3',      37'M/TH', 47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'ID Validation Fee',                               155 f_id RIGHT-JUSTIFIED,
-       /'ITEELEC2',   17'W41',      29'3',      37'T/F',  47'13:00-14:50/13:00-14:50',  75'T409/T409',  95'____________________', 125'ITE Computer Laboratory Fee',/125'(ITWELEC4A)',   155 f_ite RIGHT-JUSTIFIED,
-       /'ECONOMICS',  17'W41',      29'3',      37'T/F',  47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'SAP Fee(ITEELEC2)',                               155 f_sap RIGHT-JUSTIFIED,
-       /'ITWELEC4A',  17'W41',      29'3',      37'S/S',  47'17:00-18:50/19:00-20:50',  74'F607/F1202', 95'____________________', 125'TOTAL ASSESSMENT',                                155 f_total RIGHT-JUSTIFIED,
-       /'',10'TOTAL UNITS',         29'18'.
 
-      IF u_scho = '6'.
-        WRITE: 125'President Scholar',/125'Valedictorian (100% of','( ', f_total,')',/125'Tuition and Miscellaneous',/125'Fee)'.
-        pp_down = 0.
-        pp_final = 0.
-        pp_midterm = 0.
-      ELSEIF  u_scho = '7'.
-        WRITE: 125'Elite Scholar (100% of', /125'Tuition and Miscellaneous', 155'(', f_total,')', /125'Fee)'.
-        pp_down = 0.
-        pp_final = 0.
-        pp_midterm = 0.
-      ENDIF.
+WRITE: 
+  / 'Course',     15 'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor Initials',
+  / 'Rizal',      17 'W41',      29'3',      37'M/TH', 47'11:00-12:50/11:00-12:50',  75'F503/F503',  95'____________________', 125'Tuition Fee(18)',                                 160 f_tui RIGHT-JUSTIFIED,
+  / 'ITEELEC1',   17 'W41',      29'3',      37'M/TH', 47'15:00-16:50/15:00-16:50',  75'F707/F707',  95'____________________', 125'Miscellaneous Fee',                               160 f_misc RIGHT-JUSTIFIED,
+  / 'ITEFRELEC2', 17 'W41',      29'3',      37'M/TH', 47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'ID Validation Fee',                               160 f_id RIGHT-JUSTIFIED,
+  / 'ITEELEC2',   17 'W41',      29'3',      37'T/F',  47'13:00-14:50/13:00-14:50',  75'T409/T409',  95'____________________', 125'ITE Computer Laboratory Fee',/125'(ITWELEC4A)',   160 f_ite RIGHT-JUSTIFIED,
+  / 'ECONOMICS',  17 'W41',      29'3',      37'T/F',  47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'SAP Fee(ITEELEC2)',                               160 f_sap RIGHT-JUSTIFIED,
+  / 'ITWELEC4A',  17 'W41',      29'3',      37'S/S',  47'17:00-18:50/19:00-20:50',  74'F607/F1202', 95'____________________', 125'TOTAL ASSESSMENT',                                160 f_total RIGHT-JUSTIFIED,
+  / '',10'TOTAL UNITS',         29'18'.
 
-WRITE:                                                                                                                           /125 'Down Payment (Upon',/125 'Enrollment) 40%',      155 p_down,
-       /'This is your official Certificate of Registration when validated and signed in in by the College',                      /125 'Midterm (May 16 - May 18',/125 '2019) 30%',      155 p_midterm,
-       /'Registrar or his/her representative. Changes herein should have prior approval from this office.',                      /125 'Final (Jul 01 - Jul 06 2019',/125 '30%',         155 p_final,
-       /'COR replacement will cost you P280.00',                                                                                 /125 'Add on: Installment Fee',                        155 f_addon.
+IF p_disc <> '0'.
+  WRITE: 125 txt_scho, 160 f_dtotal.
+ENDIF.
 
-SKIP.
-SKIP.
-WRITE:                /17 u_fullname_2,
-                      /17 SY-ULINE(20),                                                      75'College Registrar',
-                      /18'Student Signature'.
+SKIP 1.
 
+WRITE:
+  'This is your official Certificate of Registration when validated and signed in in by the College',
+  125 'Down Payment (Upon Enrollment) 40%', 160 p_down,
+  / 'Registrar or his/her representative. Changes herein should have prior approval from this office.',
+  125 'Midterm (May 16 - May 18 2019) 30%', 160 p_midterm,
+  / 'COR replacement will cost you P280.00',
+  125 'Final (Jul 01 - Jul 06 2019) 30%', 160 p_final,
+  /125 'Add on: Installment Fee', 160 f_addon.
+
+SKIP 2.
+
+WRITE:
+  /17 u_fullname_2,
+  /17 SY-ULINE(20), 75 'College Registrar',
+  /18 'Student Signature'.
