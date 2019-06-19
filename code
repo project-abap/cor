@@ -38,6 +38,7 @@ AT SELECTION-SCREEN OUTPUT.
   vrm_item-key = vrm_item-text = '1st'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '2nd'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '3rd'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'Terminal'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
 
@@ -54,14 +55,14 @@ AT SELECTION-SCREEN OUTPUT.
   " programs
   CLEAR vrm_list.
   vrm_id = 'u_scho'.
-  vrm_item-key = vrm_item-text = 'Regular Student'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'ACAD50'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'ACAD75'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'PSTOP50'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'PSSAL75'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'PSVAL100'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'ELITE'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'MEGAWORLD'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '1'. vrm_item-text = 'Regular Student'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '2'. vrm_item-text = 'ACAD50'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '3'. vrm_item-text = 'ACAD75'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '4'. vrm_item-text = 'PSTOP50'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '5'. vrm_item-text = 'PSSAL75'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '6'. vrm_item-text = 'PSVAL100'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '7'. vrm_item-text = 'ELITE'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '8'. vrm_item-text = 'MEGAWORLD'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
 
@@ -70,6 +71,7 @@ AT SELECTION-SCREEN OUTPUT.
 "! actual start of the your program bruh
 "
 
+" input
 
 START-OF-SELECTION.
 
@@ -100,25 +102,122 @@ SELECTION-SCREEN END OF BLOCK S_USER.
 SELECTION-SCREEN BEGIN OF BLOCK S_CLASS WITH FRAME TITLE S_CLASS.
 
   PARAMETERS:
-    u_sem(3) AS LISTBOX VISIBLE LENGTH 6 OBLIGATORY, "Trimester Number"
-    u_cl(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
-    u_prog(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
-    u_lvl(1) AS LISTBOX VISIBLE LENGTH 4 OBLIGATORY,
-    u_scho(15) AS LISTBOX VISIBLE LENGTH 18 OBLIGATORY,
-
-    u_tfee TYPE FLOAT. "Tuition Fee"
+    u_sem(3) AS LISTBOX VISIBLE LENGTH 6, " OBLIGATORY, "Trimester Number"
+    u_cl(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
+    u_prog(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
+    u_lvl(1) AS LISTBOX VISIBLE LENGTH 4, " OBLIGATORY,
+    u_scho(15) AS LISTBOX VISIBLE LENGTH 18. " OBLIGATORY. 
 
 SELECTION-SCREEN END OF BLOCK S_CLASS.
 
 
+" fees
+
+SELECTION-SCREEN BEGIN OF BLOCK S_FEES WITH FRAME TITLE S_FEES.
+
+  PARAMETERS:
+    f_tui TYPE FLOAT, "Tuition Fee"
+    f_misc TYPE FLOAT,
+    f_id TYPE FLOAT,
+    f_ite TYPE FLOAT,
+    f_sap TYPE FLOAT,
+    f_addon TYPE FLOAT.
+
+SELECTION-SCREEN END OF BLOCK S_FEES.
+
+END-OF-SELECTION.
+
 " block titles
+
+START-OF-SELECTION.
+
 INITIALIZATION.
   S_USER = 'User Information'.
   S_CLASS = 'Class Information'.
+  S_FEES = 'Fees'.
+
+END-OF-SELECTION.
+
+
+"
+" data declarations
+"
+
+DATA:
+  
+
+  " statics
+  f_total TYPE FLOAT,
+  p_down TYPE FLOAT,
+  p_midterm TYPE FLOAT,
+  p_final TYPE FLOAT,
+
+  " percents
+  pp_down TYPE FLOAT VALUE '0.40',
+  pp_midterm TYPE FLOAT VALUE '0.30',
+  pp_final TYPE FLOAT VALUE '0.30',
+  S75Mult TYPE FLOAT VALUE '0.75',
+
+  " texts
+  ValText(99) TYPE c,
+  EltText(99) TYPE c.
+
+"
+" computations and other stuff
+"
+
+" get full names
+CONCATENATE u_lname ',' into DATA(u_lname_f).
+CONCATENATE u_lname_f u_fname u_mname into DATA(u_fullname_1) SEPARATED BY SPACE.
+CONCATENATE u_fname u_mname u_lname INTO DATA(u_fullname_2) SEPARATED BY SPACE.
+
+DATA: date TYPE SY-DATUM.
+date = SY-DATUM.
 
 
 
 
-" START-OF-SELECTION.
-WRITE: / 'Classif:', u_cl.
-WRITE: / 'Program:', u_prog.
+"
+" display
+"
+
+
+WRITE:
+ 'Certificate of Registration',
+  / 'Student Number: ', u_sid, 55 'Program:', u_prog,
+  / 'Name:', u_fullname_1, 55 'Year Level:', u_lvl, ' ', u_sem,' Trimester, Academic Year', date(4), date(4), 129 '00047',
+  / 'Phone: 09178273944',' Zip Code: ', u_zcode, 55 'Address: ', u_addr,
+  / 'Classification: LCONTINUING'.
+SKIP.
+WRITE: /'Course',     15'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor Initials',
+       /'Rizal',      17'W41',      29'3',      37'M/TH', 47'11:00-12:50/11:00-12:50',  75'F503/F503',  95'____________________', 125'Tuition Fee(18)',                                 157 f_tui RIGHT-JUSTIFIED,
+       /'ITEELEC1',   17'W41',      29'3',      37'M/TH', 47'15:00-16:50/15:00-16:50',  75'F707/F707',  95'____________________', 125'Miscellaneous Fee',                               155 f_misc RIGHT-JUSTIFIED,
+       /'ITEFRELEC2', 17'W41',      29'3',      37'M/TH', 47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'ID Validation Fee',                               155 f_id RIGHT-JUSTIFIED,
+       /'ITEELEC2',   17'W41',      29'3',      37'T/F',  47'13:00-14:50/13:00-14:50',  75'T409/T409',  95'____________________', 125'ITE Computer Laboratory Fee',/125'(ITWELEC4A)',   155 f_ite RIGHT-JUSTIFIED,
+       /'ECONOMICS',  17'W41',      29'3',      37'T/F',  47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'SAP Fee(ITEELEC2)',                               155 f_sap RIGHT-JUSTIFIED,
+       /'ITWELEC4A',  17'W41',      29'3',      37'S/S',  47'17:00-18:50/19:00-20:50',  74'F607/F1202', 95'____________________', 125'TOTAL ASSESSMENT',                                155 f_total RIGHT-JUSTIFIED,
+       /'',10'TOTAL UNITS',         29'18'.
+
+      IF u_scho = '6'.
+        WRITE: 125'President Scholar',/125'Valedictorian (100% of','( ', f_total,')',/125'Tuition and Miscellaneous',/125'Fee)'.
+        pp_down = 0.
+        pp_final = 0.
+        pp_midterm = 0.
+      ELSEIF  u_scho = '7'.
+        WRITE: 125'Elite Scholar (100% of', /125'Tuition and Miscellaneous', 155'(', f_total,')', /125'Fee)'.
+        pp_down = 0.
+        pp_final = 0.
+        pp_midterm = 0.
+      ENDIF.
+
+WRITE:                                                                                                                           /125 'Down Payment (Upon',/125 'Enrollment) 40%',      155 p_down,
+       /'This is your official Certificate of Registration when validated and signed in in by the College',                      /125 'Midterm (May 16 - May 18',/125 '2019) 30%',      155 p_midterm,
+       /'Registrar or his/her representative. Changes herein should have prior approval from this office.',                      /125 'Final (Jul 01 - Jul 06 2019',/125 '30%',         155 p_final,
+       /'COR replacement will cost you P280.00',                                                                                 /125 'Add on: Installment Fee',                        155 f_addon.
+
+SKIP.
+SKIP.
+WRITE:                /17 u_fullname_2,
+                      /17 SY-ULINE(20),                                                      75'College Registrar',
+                      /18'Student Signature'.
+
