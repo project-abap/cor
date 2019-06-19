@@ -1,4 +1,3 @@
-
 TYPE-POOLS: vrm.
 
 " commons
@@ -39,7 +38,6 @@ AT SELECTION-SCREEN OUTPUT.
   vrm_item-key = vrm_item-text = '1st'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '2nd'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '3rd'. APPEND vrm_item TO vrm_list.
-  vrm_item-key = vrm_item-text = 'Terminal'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
 
@@ -50,13 +48,14 @@ AT SELECTION-SCREEN OUTPUT.
   vrm_item-key = vrm_item-text = '2'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '3'. APPEND vrm_item TO vrm_list.
   vrm_item-key = vrm_item-text = '4'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = vrm_item-text = 'TERMINAL'. APPEND vrm_item TO vrm_list.
 
   CALL FUNCTION 'VRM_SET_VALUES' EXPORTING id = vrm_id values = vrm_list.
 
   " programs
   CLEAR vrm_list.
   vrm_id = 'u_scho'.
-  vrm_item-key = '1'. vrm_item-text = 'Regular Student'. APPEND vrm_item TO vrm_list.
+  vrm_item-key = '1'. vrm_item-text = 'REGULAR STUDENT'. APPEND vrm_item TO vrm_list.
   vrm_item-key = '2'. vrm_item-text = 'ACAD50'. APPEND vrm_item TO vrm_list.
   vrm_item-key = '3'. vrm_item-text = 'ACAD75'. APPEND vrm_item TO vrm_list.
   vrm_item-key = '4'. vrm_item-text = 'PSTOP50'. APPEND vrm_item TO vrm_list.
@@ -106,8 +105,8 @@ SELECTION-SCREEN BEGIN OF BLOCK S_CLASS WITH FRAME TITLE S_CLASS.
     u_sem(3) AS LISTBOX VISIBLE LENGTH 6, " OBLIGATORY, "Trimester Number"
     u_cl(12) AS LISTBOX VISIBLE LENGTH 14, " OBLIGATORY,
     u_prog(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
-    u_lvl(1) AS LISTBOX VISIBLE LENGTH 4, " OBLIGATORY,
-    u_scho(15) AS LISTBOX VISIBLE LENGTH 15. " OBLIGATORY.
+    u_lvl(8) AS LISTBOX VISIBLE LENGTH 11, " OBLIGATORY,
+    u_scho(15) AS LISTBOX VISIBLE LENGTH 20. " OBLIGATORY.
 
 SELECTION-SCREEN END OF BLOCK S_CLASS.
 
@@ -156,7 +155,7 @@ DATA:
   pp_down TYPE FLOAT VALUE '0.40',
   pp_midterm TYPE FLOAT VALUE '0.30',
   pp_final TYPE FLOAT VALUE '0.30',
-  
+
   " discount
   p_disc TYPE FLOAT VALUE '0',
 
@@ -219,18 +218,28 @@ CONDENSE b_yr.
 CONCATENATE b_yr date(4) INTO DATA(ac_yr).
 
 "
+" condense
+"
+
+CONDENSE u_sem.
+CONDENSE u_cl.
+CONDENSE u_prog.
+CONDENSE u_lvl.
+CONDENSE u_scho.
+
+"
 " display
 "
 
 WRITE:
  'Certificate of Registration',
-  / 'Student Number: ', u_sid, 55 'Program:', u_prog,
+  /, / 'Student Number: ', u_sid, 55 'Program:', u_prog,
   / 'Name:', u_fullname_1, 55 'Year Level:', u_lvl, ' ', u_sem,' Trimester, Academic Year', ac_yr, 129 '00047',
   / 'Phone:', u_phnum, ' Zip Code: ', u_zcode, 55 'Address: ', u_addr,
   / 'Classification: LCONTINUING'.
 SKIP.
 
-WRITE: 
+WRITE:
   / 'Course',     15 'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor Initials',
   / 'Rizal',      17 'W41',      29'3',      37'M/TH', 47'11:00-12:50/11:00-12:50',  75'F503/F503',  95'____________________', 125'Tuition Fee(18)',                                 160 f_tui RIGHT-JUSTIFIED,
   / 'ITEELEC1',   17 'W41',      29'3',      37'M/TH', 47'15:00-16:50/15:00-16:50',  75'F707/F707',  95'____________________', 125'Miscellaneous Fee',                               160 f_misc RIGHT-JUSTIFIED,
@@ -241,7 +250,16 @@ WRITE:
   / '',10'TOTAL UNITS',         29'18'.
 
 IF p_disc <> '0'.
-  WRITE: 125 txt_scho, 160 f_dtotal.
+  DATA:
+    s_dtotal TYPE STRING,
+    tmp(16) TYPE C.
+
+  s_dtotal = f_dtotal.
+  CONDENSE s_dtotal.
+
+  tmp = '(' && s_dtotal && ')'.
+
+  WRITE: 125 txt_scho, 160 tmp RIGHT-JUSTIFIED.
 ENDIF.
 
 SKIP 1.
@@ -258,6 +276,6 @@ WRITE:
 SKIP 2.
 
 WRITE:
-  /17 u_fullname_2,
-  /17 SY-ULINE(20), 75 'College Registrar',
+  /10 u_fullname_2,
+  /10 SY-ULINE(36), 75 'College Registrar',
   /18 'Student Signature'.
