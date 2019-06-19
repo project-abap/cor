@@ -78,21 +78,21 @@ START-OF-SELECTION.
 SELECTION-SCREEN BEGIN OF BLOCK S_USER WITH FRAME TITLE S_USER.
 
   PARAMETERS:
-    u_sid(11) TYPE c.
+    u_sid(11) TYPE c OBLIGATORY.
 
   SELECTION-SCREEN SKIP 1.
 
   PARAMETERS:
-    u_fname(50) TYPE c,
+    u_fname(50) TYPE c OBLIGATORY,
     u_mname(50) TYPE c,
-    u_lname(50) TYPE c.
+    u_lname(50) TYPE c OBLIGATORY.
 
   SELECTION-SCREEN SKIP 1.
 
   PARAMETERS:
-    u_addr(52) TYPE c, "Address"
-    u_phnum(11) TYPE c, "Phone Number"
-    u_zcode(4) TYPE c. "ZipCode"
+    u_addr(52) TYPE c OBLIGATORY, "Address"
+    u_phnum(11) TYPE c OBLIGATORY, "Phone Number"
+    u_zcode(4) TYPE c OBLIGATORY. "ZipCode"
 
 SELECTION-SCREEN END OF BLOCK S_USER.
 
@@ -102,11 +102,11 @@ SELECTION-SCREEN END OF BLOCK S_USER.
 SELECTION-SCREEN BEGIN OF BLOCK S_CLASS WITH FRAME TITLE S_CLASS.
 
   PARAMETERS:
-    u_sem(3) AS LISTBOX VISIBLE LENGTH 6, " OBLIGATORY, "Trimester Number"
-    u_cl(12) AS LISTBOX VISIBLE LENGTH 14, " OBLIGATORY,
-    u_prog(12) AS LISTBOX VISIBLE LENGTH 12, " OBLIGATORY,
-    u_lvl(8) AS LISTBOX VISIBLE LENGTH 11, " OBLIGATORY,
-    u_scho(15) AS LISTBOX VISIBLE LENGTH 20. " OBLIGATORY.
+    u_sem(3) AS LISTBOX VISIBLE LENGTH 6 OBLIGATORY, " Trimester Number "
+    u_cl(12) AS LISTBOX VISIBLE LENGTH 14 OBLIGATORY,
+    u_prog(12) AS LISTBOX VISIBLE LENGTH 12 OBLIGATORY,
+    u_lvl(8) AS LISTBOX VISIBLE LENGTH 11 OBLIGATORY,
+    u_scho(15) AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY.
 
 SELECTION-SCREEN END OF BLOCK S_CLASS.
 
@@ -116,12 +116,12 @@ SELECTION-SCREEN END OF BLOCK S_CLASS.
 SELECTION-SCREEN BEGIN OF BLOCK S_FEES WITH FRAME TITLE S_FEES.
 
   PARAMETERS:
-    f_tui TYPE FLOAT,
-    f_misc TYPE FLOAT,
-    f_id TYPE FLOAT,
-    f_ite TYPE FLOAT,
-    f_sap TYPE FLOAT,
-    f_addon TYPE FLOAT.
+    f_tui TYPE FLOAT OBLIGATORY,
+    f_misc TYPE FLOAT OBLIGATORY,
+    f_id TYPE FLOAT OBLIGATORY,
+    f_ite TYPE FLOAT OBLIGATORY,
+    f_sap TYPE FLOAT OBLIGATORY,
+    f_addon TYPE FLOAT OBLIGATORY.
 
 SELECTION-SCREEN END OF BLOCK S_FEES.
 
@@ -147,6 +147,7 @@ DATA:
   " statics
   f_total TYPE FLOAT,
   f_dtotal TYPE FLOAT,
+  f_ntotal TYPE FLOAT,
   p_down TYPE FLOAT,
   p_midterm TYPE FLOAT,
   p_final TYPE FLOAT,
@@ -197,8 +198,9 @@ p_down = f_total * pp_down.
 p_midterm = f_total * pp_midterm.
 p_final = f_total * pp_final.
 
-" compute disc total
+" compute disc and net total
 f_dtotal = f_total * p_disc.
+f_ntotal = f_total - f_dtotal.
 
 " get full names
 CONCATENATE u_lname ',' into DATA(u_lname_f).
@@ -263,6 +265,8 @@ IF p_disc <> '0'.
   WRITE: 125 txt_scho, 160 tmp RIGHT-JUSTIFIED.
 ENDIF.
 
+WRITE: /125 'NET TOTAL ASSESSMENT', 160 f_ntotal RIGHT-JUSTIFIED.
+
 SKIP 1.
 
 WRITE:
@@ -280,3 +284,7 @@ WRITE:
   /10 u_fullname_2,
   /10 SY-ULINE(36), 75 'College Registrar',
   /18 'Student Signature'.
+
+SKIP 2.
+
+WRITE: 'Date/Time Printed:', SY-DATUM, SY-UZEIT.
