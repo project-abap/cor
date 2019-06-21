@@ -243,7 +243,7 @@ WRITE:
 SKIP.
 
 WRITE:
-  / 'Course',     15 'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor Initials',
+  / 'Course',     15 'Section',  27'Units',  37'Days', 56'Time',                     77'Room',       95'Instructor''s Initials',
   / 'Rizal',      17 'W41',      29'3',      37'M/TH', 47'11:00-12:50/11:00-12:50',  75'F503/F503',  95'____________________', 125'Tuition Fee(18)',                                 160 f_tui RIGHT-JUSTIFIED,
   / 'ITEELEC1',   17 'W41',      29'3',      37'M/TH', 47'15:00-16:50/15:00-16:50',  75'F707/F707',  95'____________________', 125'Miscellaneous Fee',                               160 f_misc RIGHT-JUSTIFIED,
   / 'ITEFRELEC2', 17 'W41',      29'3',      37'M/TH', 47'17:00-18:50/17:00-18:50',  75'F608/F608',  95'____________________', 125'ID Validation Fee',                               160 f_id RIGHT-JUSTIFIED,
